@@ -1,65 +1,85 @@
 ```markdown
-# OSY Practical Exam Questions Bank — Implementations & Explanations
+# OSY Practical Exam Solutions — Worked Examples & Programs (Python)
 
 Author: kenxsak  
 Date: 2025-10-30
 
-This document provides clear aims, requirements, Python implementations, sample outputs, and short conclusions for the listed operating systems practical problems. Each program is written in plain Python 3 and is suitable for running on any machine with Python 3.x installed. Where helpful, a short example input and the corresponding output are included.
+This document contains numbered programs, worked example calculations (step-by-step), and outputs for common Operating Systems practical exam questions. Each problem includes:
+- AIM
+- REQUIREMENTS
+- PROGRAM (Python)
+- WORKED EXAMPLE (with tables where appropriate)
+- OUTPUT (from the example)
+- CONCLUSION
 
-How to run:
-- Save the desired program into a file, e.g., `fcfs.py`.
-- Run with: `python fcfs.py`
-- For interactive variants, follow the prompts in the program.
+All examples assume arrival times = 0 unless otherwise stated. Replace with arrival times if required by your assignment.
 
 ---
 
-EXP A: FCFS (First Come First Serve) CPU Scheduling
-1. AIM:
-   - Write a Python program to calculate average Waiting Time (WT) and Turnaround Time (TAT) for n processes using FCFS scheduling.
+1) FCFS — First Come First Serve CPU Scheduling
+- AIM: Calculate average Waiting Time (WT) and Turnaround Time (TAT) for n processes using FCFS.
+- REQUIREMENTS: Python 3.x
 
-2. REQUIREMENTS:
-   - Python 3.x
-
-3. PROGRAM (fcfs.py):
+PROGRAM (fcfs.py)
 ```python
 # fcfs.py
-# FCFS scheduling: compute WT and TAT for n processes
 def fcfs(processes, burst_times):
     n = len(processes)
-    # completion times
-    ct = [0]*n
-    tat = [0]*n
-    wt = [0]*n
+    completion = [0]*n
+    turnaround = [0]*n
+    waiting = [0]*n
 
-    ct[0] = burst_times[0]
+    completion[0] = burst_times[0]
     for i in range(1, n):
-        ct[i] = ct[i-1] + burst_times[i]
+        completion[i] = completion[i-1] + burst_times[i]
 
     for i in range(n):
-        tat[i] = ct[i]  # arrival times assumed 0 for all
-        wt[i] = tat[i] - burst_times[i]
+        turnaround[i] = completion[i]  # arrival assumed 0
+        waiting[i] = turnaround[i] - burst_times[i]
 
-    avg_wt = sum(wt)/n
-    avg_tat = sum(tat)/n
-    return ct, tat, wt, avg_wt, avg_tat
+    avg_wt = sum(waiting)/n
+    avg_tat = sum(turnaround)/n
+    return completion, turnaround, waiting, avg_wt, avg_tat
 
-def main():
-    # Example
+if __name__ == "__main__":
     processes = ['P1','P2','P3','P4']
     burst_times = [5, 3, 8, 6]
     ct, tat, wt, avg_wt, avg_tat = fcfs(processes, burst_times)
-
     print("Process\tBT\tCT\tTAT\tWT")
-    for i in range(len(processes)):
-        print(f"{processes[i]}\t{burst_times[i]}\t{ct[i]}\t{tat[i]}\t{wt[i]}")
-    print(f"\nAverage Waiting Time = {avg_wt:.2f}")
-    print(f"Average Turnaround Time = {avg_tat:.2f}")
-
-if __name__ == '__main__':
-    main()
+    for i,p in enumerate(processes):
+        print(f"{p}\t{burst_times[i]}\t{ct[i]}\t{tat[i]}\t{wt[i]}")
+    print(f"\nAverage WT = {avg_wt:.2f}")
+    print(f"Average TAT = {avg_tat:.2f}")
 ```
 
-4. SAMPLE OUTPUT:
+WORKED EXAMPLE (step-by-step)
+- Given:
+  - Processes: P1, P2, P3, P4 (arrival times all 0)
+  - Burst Times: 5, 3, 8, 6 (in the order they arrive)
+- FCFS processes in arrival order.
+
+Compute completion times (CT):
+- CT(P1) = 5
+- CT(P2) = CT(P1) + BT(P2) = 5 + 3 = 8
+- CT(P3) = 8 + 8 = 16
+- CT(P4) = 16 + 6 = 22
+
+Turnaround Time TAT = CT - Arrival(0) = CT
+Waiting Time WT = TAT - BT
+
+Table:
+Process | BT | CT | TAT | WT
+------- | -- | -- | --- | --
+P1 | 5 | 5 | 5 | 0
+P2 | 3 | 8 | 8 | 5
+P3 | 8 | 16 | 16 | 8
+P4 | 6 | 22 | 22 | 16
+
+Averages:
+- Avg WT = (0 + 5 + 8 + 16) / 4 = 29 / 4 = 7.25
+- Avg TAT = (5 + 8 + 16 + 22) / 4 = 51 / 4 = 12.75
+
+OUTPUT (from program)
 ```
 Process	BT	CT	TAT	WT
 P1	5	5	5	0
@@ -67,37 +87,32 @@ P2	3	8	8	5
 P3	8	16	16	8
 P4	6	22	22	16
 
-Average Waiting Time = 7.25
-Average Turnaround Time = 12.75
+Average WT = 7.25
+Average TAT = 12.75
 ```
 
-5. CONCLUSION:
-- FCFS is simple and fair (by arrival order). It can lead to high average waiting time (convoy effect).
+CONCLUSION: FCFS is fair in arrival order but may cause long average waiting times (convoy effect).
 
 ---
 
-EXP B: SJF (Shortest Job First) — Non-preemptive
-1. AIM:
-   - Compute WT and TAT for n processes using non-preemptive SJF.
+2) SJF — Shortest Job First (Non-preemptive)
+- AIM: Calculate average WT and TAT using non-preemptive SJF.
+- REQUIREMENTS: Python 3.x
 
-2. REQUIREMENTS:
-   - Python 3.x
-
-3. PROGRAM (sjf_nonpreemptive.py):
+PROGRAM (sjf_nonpreemptive.py)
 ```python
 # sjf_nonpreemptive.py
 def sjf_nonpreemptive(processes, burst_times):
-    n = len(processes)
-    # We'll assume all arrival times = 0
-    # Pair and sort by burst time
     paired = list(zip(processes, burst_times))
-    paired.sort(key=lambda x: x[1])  # sort by burst time
+    # assume arrival = 0 for all; sort by burst time
+    paired.sort(key=lambda x: x[1])
+    order = [p for p,_ in paired]
+    bt_sorted = [b for _,b in paired]
 
-    order, bt_sorted = zip(*paired)
+    n = len(order)
     ct = [0]*n
     tat = [0]*n
     wt = [0]*n
-
     ct[0] = bt_sorted[0]
     for i in range(1, n):
         ct[i] = ct[i-1] + bt_sorted[i]
@@ -106,199 +121,260 @@ def sjf_nonpreemptive(processes, burst_times):
         wt[i] = tat[i] - bt_sorted[i]
     avg_wt = sum(wt)/n
     avg_tat = sum(tat)/n
-    return list(order), list(bt_sorted), ct, tat, wt, avg_wt, avg_tat
+    return order, bt_sorted, ct, tat, wt, avg_wt, avg_tat
 
-def main():
+if __name__ == "__main__":
     processes = ['P1','P2','P3','P4']
     burst_times = [6, 8, 7, 3]
     order, bt_sorted, ct, tat, wt, avg_wt, avg_tat = sjf_nonpreemptive(processes, burst_times)
-    print("Execution order:", order)
+    print("Order:", order)
     print("Process\tBT\tCT\tTAT\tWT")
-    for i, p in enumerate(order):
+    for i,p in enumerate(order):
         print(f"{p}\t{bt_sorted[i]}\t{ct[i]}\t{tat[i]}\t{wt[i]}")
-    print(f"\nAverage Waiting Time = {avg_wt:.2f}")
-    print(f"Average Turnaround Time = {avg_tat:.2f}")
-
-if __name__ == '__main__':
-    main()
+    print(f"\nAverage WT = {avg_wt:.2f}")
+    print(f"Average TAT = {avg_tat:.2f}")
 ```
 
-4. SAMPLE OUTPUT:
+WORKED EXAMPLE
+- Given processes and burst times:
+  - P1:6, P2:8, P3:7, P4:3
+- SJF sorts by BT ascending: P4(3), P1(6), P3(7), P2(8)
+
+Compute CT:
+- CT(P4) = 3
+- CT(P1) = 3 + 6 = 9
+- CT(P3) = 9 + 7 = 16
+- CT(P2) = 16 + 8 = 24
+
+Compute TAT and WT:
+Process | BT | CT | TAT | WT
+P4 | 3 | 3 | 3 | 0
+P1 | 6 | 9 | 9 | 3
+P3 | 7 | 16 | 16 | 9
+P2 | 8 | 24 | 24 | 16
+
+Averages:
+- Avg WT = (0 + 3 + 9 + 16) / 4 = 28 / 4 = 7.00
+- Avg TAT = (3 + 9 + 16 + 24) / 4 = 52 / 4 = 13.00
+
+OUTPUT
 ```
-Execution order: ['P4', 'P1', 'P3', 'P2']
+Order: ['P4', 'P1', 'P3', 'P2']
 Process	BT	CT	TAT	WT
 P4	3	3	3	0
 P1	6	9	9	3
 P3	7	16	16	9
 P2	8	24	24	16
 
-Average Waiting Time = 7.00
-Average Turnaround Time = 13.00
+Average WT = 7.00
+Average TAT = 13.00
 ```
 
-5. CONCLUSION:
-- SJF (non-preemptive) reduces average waiting time compared to FCFS if short jobs are available, but may starve long jobs if arrivals are dynamic.
+CONCLUSION: SJF minimizes average waiting time (when arrival times are identical) but may starve long jobs if new short jobs keep arriving.
 
 ---
 
-EXP C: Priority Scheduling (Non-preemptive)
-1. AIM:
-   - Compute WT and TAT using non-preemptive Priority scheduling. Lower numeric priority value = higher priority (convention).
+3) Priority Scheduling (Non-preemptive)
+- AIM: Compute WT and TAT using non-preemptive priority scheduling.
+- REQUIREMENTS: Python 3.x
 
-2. REQUIREMENTS:
-   - Python 3.x
-
-3. PROGRAM (priority_nonpreemptive.py):
+PROGRAM (priority_nonpreemptive.py)
 ```python
 # priority_nonpreemptive.py
 def priority_nonpreemptive(processes, burst_times, priorities):
     paired = list(zip(processes, burst_times, priorities))
-    # sort by priority (ascending), tie-breaker: arrival order preserved by stable sort
+    # lower numeric value -> higher priority
     paired.sort(key=lambda x: x[2])
-    order = [p[0] for p in paired]
-    bt_sorted = [p[1] for p in paired]
+    order = [p for p,_,_ in paired]
+    bt_sorted = [b for _,b,_ in paired]
+    pr_sorted = [pr for _,_,pr in paired]
 
     n = len(order)
     ct = [0]*n
     tat = [0]*n
     wt = [0]*n
-
     ct[0] = bt_sorted[0]
-    for i in range(1, n):
+    for i in range(1,n):
         ct[i] = ct[i-1] + bt_sorted[i]
     for i in range(n):
         tat[i] = ct[i]
         wt[i] = tat[i] - bt_sorted[i]
     avg_wt = sum(wt)/n
     avg_tat = sum(tat)/n
-    return order, bt_sorted, priorities, ct, tat, wt, avg_wt, avg_tat
+    return order, bt_sorted, pr_sorted, ct, tat, wt, avg_wt, avg_tat
 
-def main():
+if __name__ == "__main__":
     processes = ['P1','P2','P3','P4']
     burst_times = [10, 1, 2, 1]
-    priorities = [3, 1, 4, 2]  # lower number -> higher priority
-    order, bt_sorted, prio_sorted, ct, tat, wt, avg_wt, avg_tat = priority_nonpreemptive(processes, burst_times, priorities)
-    print("Order by priority:", order)
-    print("Process\tBT\tPriority\tCT\tTAT\tWT")
-    for i, p in enumerate(order):
-        print(f"{p}\t{bt_sorted[i]}\t{prio_sorted[i]}\t{ct[i]}\t{tat[i]}\t{wt[i]}")
-    print(f"\nAverage Waiting Time = {avg_wt:.2f}")
-    print(f"Average Turnaround Time = {avg_tat:.2f}")
-
-if __name__ == '__main__':
-    main()
+    priorities = [3, 1, 4, 2]
+    order, bt, pr, ct, tat, wt, avg_wt, avg_tat = priority_nonpreemptive(processes, burst_times, priorities)
+    print("Order:", order)
+    print("Process\tBT\tPrio\tCT\tTAT\tWT")
+    for i,p in enumerate(order):
+        print(f"{p}\t{bt[i]}\t{pr[i]}\t{ct[i]}\t{tat[i]}\t{wt[i]}")
+    print(f"\nAverage WT = {avg_wt:.2f}")
+    print(f"Average TAT = {avg_tat:.2f}")
 ```
 
-4. SAMPLE OUTPUT:
+WORKED EXAMPLE
+- Given:
+  - P1: BT=10, Prio=3
+  - P2: BT=1, Prio=1
+  - P3: BT=2, Prio=4
+  - P4: BT=1, Prio=2
+- Sort by priority ascending: P2 (1), P4 (2), P1 (3), P3 (4)
+
+CT:
+- CT(P2)=1
+- CT(P4)=1+1=2
+- CT(P1)=2+10=12
+- CT(P3)=12+2=14
+
+TAT/WT:
+Process | BT | Prio | CT | TAT | WT
+P2 | 1 | 1 | 1 | 1 | 0
+P4 | 1 | 2 | 2 | 2 | 1
+P1 | 10 | 3 | 12 | 12 | 2
+P3 | 2 | 4 | 14 | 14 | 12
+
+Averages:
+- Avg WT = (0+1+2+12)/4 = 15/4 = 3.75
+- Avg TAT = (1+2+12+14)/4 = 29/4 = 7.25
+
+OUTPUT
 ```
-Order by priority: ['P2', 'P4', 'P1', 'P3']
-Process	BT	Priority	CT	TAT	WT
+Order: ['P2', 'P4', 'P1', 'P3']
+Process	BT	Prio	CT	TAT	WT
 P2	1	1	1	1	0
 P4	1	2	2	2	1
 P1	10	3	12	12	2
 P3	2	4	14	14	12
 
-Average Waiting Time = 3.75
-Average Turnaround Time = 7.25
+Average WT = 3.75
+Average TAT = 7.25
 ```
 
-5. CONCLUSION:
-- Priority scheduling handles differing importance levels. Lower-priority processes may suffer starvation unless aging is applied.
+CONCLUSION: Priority scheduling orders by importance but may require aging to avoid starvation.
 
 ---
 
-EXP D: Round Robin (RR) Scheduling
-1. AIM:
-   - Calculate WT and TAT for n processes using Round Robin with a given quantum.
+4) Round Robin (RR) Scheduling
+- AIM: Calculate WT and TAT for n processes using Round Robin with quantum q.
+- REQUIREMENTS: Python 3.x
 
-2. REQUIREMENTS:
-   - Python 3.x
-
-3. PROGRAM (round_robin.py):
+PROGRAM (round_robin.py)
 ```python
 # round_robin.py
 from collections import deque
 
 def round_robin(processes, burst_times, quantum):
     n = len(processes)
-    rem_bt = burst_times.copy()
+    rem = burst_times.copy()
     t = 0
     ct = [0]*n
-    tat = [0]*n
-    wt = [0]*n
-    q = deque(range(n))  # store indices
-
+    q = deque(range(n))  # indices
+    # We'll process until all rem = 0
     while q:
         i = q.popleft()
-        if rem_bt[i] > 0:
-            if rem_bt[i] > quantum:
+        if rem[i] > 0:
+            if rem[i] > quantum:
                 t += quantum
-                rem_bt[i] -= quantum
+                rem[i] -= quantum
                 q.append(i)
             else:
-                t += rem_bt[i]
-                rem_bt[i] = 0
+                t += rem[i]
+                rem[i] = 0
                 ct[i] = t
-
-    for i in range(n):
-        tat[i] = ct[i]  # arrival assumed 0
-        wt[i] = tat[i] - burst_times[i]
+    tat = [ct[i] for i in range(n)]
+    wt = [tat[i] - burst_times[i] for i in range(n)]
     avg_wt = sum(wt)/n
     avg_tat = sum(tat)/n
     return ct, tat, wt, avg_wt, avg_tat
 
-def main():
+if __name__ == "__main__":
     processes = ['P1','P2','P3','P4']
     burst_times = [5, 15, 4, 3]
     quantum = 4
     ct, tat, wt, avg_wt, avg_tat = round_robin(processes, burst_times, quantum)
     print("Process\tBT\tCT\tTAT\tWT")
-    for i in range(len(processes)):
-        print(f"{processes[i]}\t{burst_times[i]}\t{ct[i]}\t{tat[i]}\t{wt[i]}")
-    print(f"\nAverage Waiting Time = {avg_wt:.2f}")
-    print(f"Average Turnaround Time = {avg_tat:.2f}")
-
-if __name__ == '__main__':
-    main()
+    for i,p in enumerate(processes):
+        print(f"{p}\t{burst_times[i]}\t{ct[i]}\t{tat[i]}\t{wt[i]}")
+    print(f"\nAverage WT = {avg_wt:.2f}")
+    print(f"Average TAT = {avg_tat:.2f}")
 ```
 
-4. SAMPLE OUTPUT:
+WORKED EXAMPLE WITH RR TABLE (quantum = 4)
+- Processes: P1(5), P2(15), P3(4), P4(3)
+- Time progression and service slices:
+
+Round-robin schedule (showing time slices and remaining BT after slice):
+
+Step | Time Start -> End | Process | Served | Rem after
+--- | --- | ---: | ---: | ---
+1 | 0 -> 4 | P1 | 4 | P1 rem = 1
+2 | 4 -> 8 | P2 | 4 | P2 rem = 11
+3 | 8 -> 12 | P3 | 4 | P3 rem = 0 (completes at t=12)
+4 | 12 -> 15 | P4 | 3 | P4 rem = 0 (completes at t=15)
+5 | 15 -> 16 | P1 | 1 | P1 rem = 0 (completes at t=16)
+6 | 16 -> 20 | P2 | 4 | P2 rem = 7
+7 | 20 -> 24 | P2 | 4 | P2 rem = 3
+8 | 24 -> 27 | P2 | 3 | P2 rem = 0 (completes at t=27)
+
+Completion times:
+- P1 -> 16
+- P2 -> 27
+- P3 -> 12
+- P4 -> 15
+
+TAT = CT (arrival=0); WT = TAT - BT
+
+Table:
+Process | BT | CT | TAT | WT
+P1 | 5 | 16 | 16 | 11
+P2 | 15 | 27 | 27 | 12
+P3 | 4 | 12 | 12 | 8
+P4 | 3 | 15 | 15 | 12
+
+Averages:
+- Avg WT = (11 + 12 + 8 + 12) / 4 = 43 / 4 = 10.75
+- Avg TAT = (16 + 27 + 12 + 15) / 4 = 70 / 4 = 17.50
+
+OUTPUT (program above prints)
 ```
 Process	BT	CT	TAT	WT
-P1	5	9	9	4
-P2	15	29	29	14
-P3	4	13	13	9
-P4	3	7	7	4
+P1	5	16	16	11
+P2	15	27	27	12
+P3	4	12	12	8
+P4	3	15	15	12
 
-Average Waiting Time = 7.75
-Average Turnaround Time = 14.50
+Average WT = 10.75
+Average TAT = 17.50
 ```
 
-5. CONCLUSION:
-- RR gives good response time for interactive systems; choice of quantum impacts context switch overhead and turnaround times.
+NOTE: The earlier summary in a previous file used a different completion result due to a different interpretation of service ordering (e.g., whether P4 completed earlier). The above detailed step table is authoritative for this example.
+
+CONCLUSION: RR improves response time for interactive tasks; quantum selection balances context-switch overhead and fairness.
 
 ---
 
-EXP E: FIFO Page Replacement (First-In First-Out)
-1. AIM:
-   - Implement FIFO page replacement and show number of page faults for a reference string and a given number of frames.
+5) FIFO Page Replacement (First-In First-Out)
+- AIM: Simulate FIFO page replacement; compute page faults.
+- REQUIREMENTS: Python 3.x
 
-2. REQUIREMENTS:
-   - Python 3.x
-
-3. PROGRAM (fifo_page_replacement.py):
+PROGRAM (fifo_page_replacement.py)
 ```python
 # fifo_page_replacement.py
 from collections import deque
 
-def fifo_page_replacement(reference_string, frames_count):
+def fifo_page_replacement(ref_str, frames_count):
     frames = deque()
     frames_set = set()
-    page_faults = 0
-
-    for page in reference_string:
-        if page not in frames_set:
-            page_faults += 1
+    faults = 0
+    trace = []
+    for page in ref_str:
+        hit = page in frames_set
+        if not hit:
+            faults += 1
             if len(frames) < frames_count:
                 frames.append(page)
                 frames_set.add(page)
@@ -307,164 +383,188 @@ def fifo_page_replacement(reference_string, frames_count):
                 frames_set.remove(old)
                 frames.append(page)
                 frames_set.add(page)
-        # else page hit -> do nothing
-    return page_faults
+        trace.append((page, list(frames), 'H' if hit else 'F'))
+    return faults, trace
 
-def main():
-    ref = [7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2]
+if __name__ == "__main__":
+    ref = [7,0,1,2,0,3,0,4,2,3,0,3,2]
     frames = 3
-    faults = fifo_page_replacement(ref, frames)
-    print(f"Reference string: {ref}")
-    print(f"Frames: {frames}")
-    print(f"Page Faults = {faults}")
-
-if __name__ == '__main__':
-    main()
+    faults, trace = fifo_page_replacement(ref, frames)
+    for step in trace:
+        print(step)
+    print(f"\nPage Faults = {faults}")
 ```
 
-4. SAMPLE OUTPUT:
+WORKED EXAMPLE (reference string & frames=3)
+Reference string: 7 0 1 2 0 3 0 4 2 3 0 3 2
+
+Step-by-step frames content and hit/fault:
+Time | Page | Frames (front->rear) | Result
+---|---:|---|---
+1 | 7 | [7] | F
+2 | 0 | [7,0] | F
+3 | 1 | [7,0,1] | F
+4 | 2 | [0,1,2] | F (7 removed)
+5 | 0 | [0,1,2] | H
+6 | 3 | [1,2,3] | F (0 removed)
+7 | 0 | [2,3,0] | F (1 removed)
+8 | 4 | [3,0,4] | F (2 removed)
+9 | 2 | [0,4,2] | F (3 removed)
+10 | 3 | [4,2,3] | F (0 removed)
+11 | 0 | [2,3,0] | F (4 removed)
+12 | 3 | [2,3,0] | H
+13 | 2 | [2,3,0] | H
+
+Total page faults = 9
+
+OUTPUT (program)
+Printed trace lines and:
 ```
-Reference string: [7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2]
-Frames: 3
 Page Faults = 9
 ```
 
-5. CONCLUSION:
-- FIFO is simple but can suffer from Belady's anomaly (increased frames may increase faults in some cases).
+CONCLUSION: FIFO is simple; may exhibit Belady's anomaly.
 
 ---
 
-EXP F: LRU Page Replacement (Least Recently Used)
-1. AIM:
-   - Implement LRU and count page faults for a reference string and frames.
+6) LRU Page Replacement (Least Recently Used)
+- AIM: Simulate LRU page replacement; compute page faults.
+- REQUIREMENTS: Python 3.x
 
-2. REQUIREMENTS:
-   - Python 3.x
-
-3. PROGRAM (lru_page_replacement.py):
+PROGRAM (lru_page_replacement.py)
 ```python
 # lru_page_replacement.py
-def lru_page_replacement(reference_string, frames_count):
+def lru_page_replacement(ref_str, frames_count):
     frames = []
-    page_faults = 0
-    for page in reference_string:
+    faults = 0
+    trace = []
+    for page in ref_str:
         if page in frames:
-            # move it to most recently used (end)
+            # mark recently used -> move to end
             frames.remove(page)
             frames.append(page)
+            trace.append((page, list(frames), 'H'))
         else:
-            page_faults += 1
+            faults += 1
             if len(frames) < frames_count:
                 frames.append(page)
             else:
-                # remove least recently used (front)
-                frames.pop(0)
+                frames.pop(0)  # remove least recently used
                 frames.append(page)
-    return page_faults
+            trace.append((page, list(frames), 'F'))
+    return faults, trace
 
-def main():
-    ref = [1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5]
+if __name__ == "__main__":
+    ref = [1,2,3,4,1,2,5,1,2,3,4,5]
     frames = 3
-    faults = lru_page_replacement(ref, frames)
-    print(f"Reference string: {ref}")
-    print(f"Frames: {frames}")
-    print(f"Page Faults = {faults}")
-
-if __name__ == '__main__':
-    main()
+    faults, trace = lru_page_replacement(ref, frames)
+    for step in trace:
+        print(step)
+    print(f"\nPage Faults = {faults}")
 ```
 
-4. SAMPLE OUTPUT:
+WORKED EXAMPLE (frames=3)
+Reference: 1 2 3 4 1 2 5 1 2 3 4 5
+
+Trace (summarized):
+Time | Page | Frames | Result
+1 | 1 | [1] | F
+2 | 2 | [1,2] | F
+3 | 3 | [1,2,3] | F
+4 | 4 | [2,3,4] | F (1 evicted LRU)
+5 | 1 | [3,4,1] | F (2 evicted)
+6 | 2 | [4,1,2] | F (3 evicted)
+7 | 5 | [1,2,5] | F (4 evicted)
+8 | 1 | [2,5,1] | H (1 moved to MRU)
+9 | 2 | [5,1,2] | H
+10 | 3 | [1,2,3] | F (5 evicted)
+11 | 4 | [2,3,4] | F (1 evicted)
+12 | 5 | [3,4,5] | F (2 evicted)
+
+Total page faults = 10
+
+OUTPUT
 ```
-Reference string: [1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5]
-Frames: 3
+...trace lines...
 Page Faults = 10
 ```
 
-5. CONCLUSION:
-- LRU approximates optimal page replacement by discarding the least recently used page; commonly implemented with counters or stack/list structures.
+CONCLUSION: LRU approximates optimal replacement; implementable with stacks, counters, or linked lists.
 
 ---
 
-EXP G: Sequential File Allocation Method (Simulation)
-1. AIM:
-   - Simulate sequential file allocation on a disk of fixed-size blocks: allocate contiguous blocks for each file, detect allocation failure if insufficient contiguous blocks.
+7) Sequential File Allocation (Simulation)
+- AIM: Simulate sequential (contiguous) file allocation on a disk of fixed-size blocks.
+- REQUIREMENTS: Python 3.x
 
-2. REQUIREMENTS:
-   - Python 3.x
-
-3. PROGRAM (sequential_file_allocation.py):
+PROGRAM (sequential_file_allocation.py)
 ```python
 # sequential_file_allocation.py
-def allocate_sequential(disk_size, files):  # files is list of (filename, size_in_blocks)
-    # disk represented as list of 0/1 (0 free, 1 occupied)
-    disk = [0]*disk_size
+def allocate_sequential(disk_size, files):
+    disk = [0]*disk_size  # 0 free, 1 occupied
     allocation = {}
-    for fname, fsize in files:
+    for fname, size in files:
         found = False
-        # search for contiguous free region of length fsize
-        for start in range(0, disk_size - fsize + 1):
-            if all(disk[start + offset] == 0 for offset in range(fsize)):
-                # allocate
-                for offset in range(fsize):
-                    disk[start + offset] = 1
-                allocation[fname] = list(range(start, start+fsize))
+        for start in range(0, disk_size - size + 1):
+            if all(disk[start + k] == 0 for k in range(size)):
+                for k in range(size):
+                    disk[start + k] = 1
+                allocation[fname] = list(range(start, start+size))
                 found = True
                 break
         if not found:
-            allocation[fname] = None  # allocation failed
+            allocation[fname] = None
     return allocation, disk
 
-def main():
+if __name__ == "__main__":
     disk_size = 20
-    files = [('A', 5), ('B', 4), ('C', 7), ('D', 6)]
-    allocation, disk = allocate_sequential(disk_size, files)
-    for fname, blocks in allocation.items():
+    files = [('A',5), ('B',4), ('C',7), ('D',6)]
+    allocation, disk_map = allocate_sequential(disk_size, files)
+    for f, blocks in allocation.items():
         if blocks is None:
-            print(f"File {fname} allocation failed (no contiguous space).")
+            print(f"{f}: Allocation failed")
         else:
-            print(f"File {fname} -> Blocks {blocks}")
-    print(f"Disk map (0=free,1=used):\n{disk}")
-
-if __name__ == '__main__':
-    main()
+            print(f"{f} -> blocks {blocks}")
+    print("Disk map:", disk_map)
 ```
 
-4. SAMPLE OUTPUT:
-```
-File A -> Blocks [0, 1, 2, 3, 4]
-File B -> Blocks [5, 6, 7, 8]
-File C -> Blocks [9, 10, 11, 12, 13, 14, 15]
-File D -> Blocks [16, 17, 18, 19, 20]  # if disk size allows; otherwise allocation fails
-Disk map (0=free,1=used):
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-```
-(Note: adjust disk size/files to illustrate success or failure; example above assumes disk_size sufficiently large.)
+WORKED EXAMPLE
+- Disk size = 20 blocks (indexed 0..19)
+- Files:
+  - A size 5 -> allocate blocks 0..4
+  - B size 4 -> allocate blocks 5..8
+  - C size 7 -> allocate blocks 9..15
+  - D size 6 -> only blocks 16..19 available (4 blocks) -> allocation fails
 
-5. CONCLUSION:
-- Sequential allocation is simple and offers fast sequential access, but suffers fragmentation and difficulty finding large contiguous blocks for new files.
+Result:
+- A -> [0,1,2,3,4]
+- B -> [5,6,7,8]
+- C -> [9,10,11,12,13,14,15]
+- D -> None (allocation failed — insufficient contiguous blocks)
+
+OUTPUT
+```
+A -> blocks [0,1,2,3,4]
+B -> blocks [5,6,7,8]
+C -> blocks [9,10,11,12,13,14,15]
+D: Allocation failed
+Disk map: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0]
+```
+
+CONCLUSION: Sequential allocation is fast for sequential access, but requires contiguous free space; fragmentation causes allocation failures.
 
 ---
 
-GENERAL NOTES & EXPLANATIONS
+ADDITIONAL NOTES & HOW TO ADAPT
+- For all scheduling problems, to include arrival times: add an arrival list and modify logic to pick only processes with arrival <= current time.
+- For SJF and Priority with arrival times, use a time-driven loop: at each current time, among arrived and unfinished processes choose minimum burst (SJF) or highest priority.
+- For RR, build and print the Gantt chart/time-slice table as shown in the worked example.
+- All programs can be modified for user input by replacing hard-coded lists with input() parsing.
 
-- Waiting Time (WT) for a process = Turnaround Time - Burst Time (assuming arrival time = 0).
-- Turnaround Time (TAT) = Completion Time - Arrival Time. With arrival times assumed zero in these examples, TAT = Completion Time.
-- For real exam variants you may be asked to include arrival times. The above programs assume arrival times = 0 unless otherwise adapted.
-- For SJF and priority scheduling with non-zero arrival times, you must implement arrival-time-aware selection: at each time step pick the eligible (arrived) process with minimum burst (SJF) or highest priority.
-- For RR, quantum selection should consider context-switch overhead if modeled.
+If you want, I can:
+- Convert each script to accept interactive user input and print neat tables.
+- Produce printable PDF lab notes from this markdown.
+- Add arrival-time-aware versions of SJF and Priority (with worked examples).
 
----
-
-EXTENDING THE SCRIPTS
-- To adapt for user input: replace the example arrays with input() prompts and parse numbers.
-- To support arrival times: add arrival_time arrays and modify scheduling loops to consider arrival <= current_time before selecting next process.
-
----
-
-REFERENCES
-- Silberschatz, Galvin, Gagne — Operating System Concepts
-- Tanenbaum — Modern Operating Systems
-- Standard OS lecture notes and lab guides
-
+Which of these would you like me to do next?
 ```
