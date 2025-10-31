@@ -16,7 +16,7 @@ All examples assume arrival times = 0 unless otherwise stated. Replace with arri
 
 ---
 
-1) FCFS — First Come First Serve CPU Scheduling
+4) FCFS — First Come First Serve CPU Scheduling
 - AIM: Calculate average Waiting Time (WT) and Turnaround Time (TAT) for n processes using FCFS.
 - REQUIREMENTS: Python 3.x
 
@@ -95,7 +95,7 @@ CONCLUSION: FCFS is fair in arrival order but may cause long average waiting tim
 
 ---
 
-2) SJF — Shortest Job First (Non-preemptive)
+5) SJF — Shortest Job First (Non-preemptive)
 - AIM: Calculate average WT and TAT using non-preemptive SJF.
 - REQUIREMENTS: Python 3.x
 
@@ -174,7 +174,7 @@ CONCLUSION: SJF minimizes average waiting time (when arrival times are identical
 
 ---
 
-3) Priority Scheduling (Non-preemptive)
+6) Priority Scheduling (Non-preemptive)
 - AIM: Compute WT and TAT using non-preemptive priority scheduling.
 - REQUIREMENTS: Python 3.x
 
@@ -258,7 +258,7 @@ CONCLUSION: Priority scheduling orders by importance but may require aging to av
 
 ---
 
-4) Round Robin (RR) Scheduling
+7) Round Robin (RR) Scheduling
 - AIM: Calculate WT and TAT for n processes using Round Robin with quantum q.
 - REQUIREMENTS: Python 3.x
 
@@ -357,7 +357,7 @@ CONCLUSION: RR improves response time for interactive tasks; quantum selection b
 
 ---
 
-5) FIFO Page Replacement (First-In First-Out)
+10) FIFO Page Replacement (First-In First-Out)
 - AIM: Simulate FIFO page replacement; compute page faults.
 - REQUIREMENTS: Python 3.x
 
@@ -427,7 +427,7 @@ CONCLUSION: FIFO is simple; may exhibit Belady's anomaly.
 
 ---
 
-6) LRU Page Replacement (Least Recently Used)
+11) LRU Page Replacement (Least Recently Used)
 - AIM: Simulate LRU page replacement; compute page faults.
 - REQUIREMENTS: Python 3.x
 
@@ -493,7 +493,7 @@ CONCLUSION: LRU approximates optimal replacement; implementable with stacks, cou
 
 ---
 
-7) Sequential File Allocation (Simulation)
+12) Sequential File Allocation (Simulation)
 - AIM: Simulate sequential (contiguous) file allocation on a disk of fixed-size blocks.
 - REQUIREMENTS: Python 3.x
 
